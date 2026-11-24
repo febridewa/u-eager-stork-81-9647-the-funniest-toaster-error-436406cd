@@ -22,7 +22,7 @@
 //
 // The program writes exactly that one line to /output/entry.txt.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const LINE =
   "ERROR: BREAD STILL BREAD. PLEASE LOWER YOUR EXPECTATIONS.";
@@ -35,3 +35,11 @@ if (LINE.length < 1 || LINE.length > 120) {
 
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", LINE, "utf8");
+
+// Read the file back and confirm it holds exactly the line — no trailing
+// newline, no extra whitespace — so a silent write failure can never
+// reach the gate as a different entry.
+const written = readFileSync("/output/entry.txt", "utf8");
+if (written !== LINE) {
+  throw new Error(`entry.txt round-trip mismatch: ${JSON.stringify(written)}`);
+}
